@@ -6,6 +6,7 @@
     "socket.io": "*",
     "superagent": "*",
     "traverson": "*",
-    "traverson-hal": "^4.0.0"
+    "traverson-hal": "^4.0.0",
+    "ejs": "^2.3.4"
   }
 }

@@ -1,5 +1,5 @@
 $(function() {
-  var url = 'http://localhost:3000';
+  var url = 'http://node.upopple.com';
 
   var id = Math.round($.now()*Math.random());
 
@@ -26,49 +26,44 @@ $(function() {
   var clients = {};
   var cursors = {};
 
-  var socket = io.connect(url);
+  var artwork = getParameterByName('artwork');
 
+  var socket = io.connect(url, { path: "/smearthevermeer/socket.io" });
 
   socket.on("moving", function(data) {
-    console.log(data);
+        if(! (data.id in clients)){
+            // a new user has come online. create a cursor for them
+            cursors[data.id] = $('<div class="cursor">').appendTo('#cursors');
+        }
 
-		if(! (data.id in clients)){
-			// a new user has come online. create a cursor for them
-			cursors[data.id] = $('<div class="cursor">').appendTo('#cursors');
-		}
+        // Move the mouse pointer
+        cursors[data.id].css({
+            'left' : data.x,
+            'top' : data.y
+        });
 
-		// Move the mouse pointer
-		cursors[data.id].css({
-			'left' : data.x,
-			'top' : data.y
-		});
-
-		// Is the user drawing?
+        // Is the user drawing?
     console.log(clients);
-		if(data.drawing && clients[data.id]){
+        if(data.drawing && clients[data.id] && clients[data.id].artwork == artwork){
 
-			// Draw a line on the canvas. clients[data.id] holds
-			// the previous position of this user's mouse pointer
+            // Draw a line on the canvas. clients[data.id] holds
+            // the previous position of this user's mouse pointer
 
-			drawLine(clients[data.id].x, clients[data.id].y, data.x, data.y);
-		}
+            drawLine(clients[data.id].x, clients[data.id].y, data.x, data.y);
+        }
 
-		// Saving the current client state
-		clients[data.id] = data;
-		clients[data.id].updated = $.now();
+        // Saving the current client state
+        clients[data.id] = data;
+        clients[data.id].updated = $.now();
   });
 
-  socket.on('background', function(url) {
-    console.log(url);
     var img = $("<img />")
-    // img[0].crossOrigin = "Anonymous";
-    img.attr('src', url)
+    img.attr('src', window.bgUrl)
       .on('load', function() {
         background.append(img);
 
         ctx.drawImage(this, 0, 0);
-      })
-  });
+      });
 
   var prev = {};
 
@@ -91,6 +86,7 @@ $(function() {
         'x': e.pageX / size.x,
         'y': e.pageY / size.y,
         'drawing': drawing,
+        'artwork': artwork,
         'id': id
       });
 
@@ -124,4 +120,12 @@ $(function() {
     ctx.lineTo(tox * size.x, toy * size.y);
     ctx.stroke();
   }
+
+  function getParameterByName(name) {
+              name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                              results = regex.exec(location.search);
+                      return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
 })
+
