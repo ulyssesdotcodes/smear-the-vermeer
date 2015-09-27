@@ -16,3 +16,11 @@ html {
 	width:15px;
 	height:22px;
 }
+
+#paper {
+  display: block;
+}
+
+img {
+  display: block;
+}

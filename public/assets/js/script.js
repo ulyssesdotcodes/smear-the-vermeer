@@ -8,6 +8,7 @@ $(function() {
   var doc = $(document);
   var win = $(window);
   var canvas = $("#paper");
+  var background = $("#image");
 
   var ctx = canvas[0].getContext('2d');
 
@@ -19,10 +20,14 @@ $(function() {
   ctx.canvas.width = size.x;
   ctx.canvas.height = size.y;
 
+  background.width(size.x);
+  background.height(size.y);
+
   var clients = {};
   var cursors = {};
 
   var socket = io.connect(url);
+
 
   socket.on("moving", function(data) {
     console.log(data);
@@ -51,6 +56,18 @@ $(function() {
 		// Saving the current client state
 		clients[data.id] = data;
 		clients[data.id].updated = $.now();
+  });
+
+  socket.on('background', function(url) {
+    console.log(url);
+    var img = $("<img />")
+    // img[0].crossOrigin = "Anonymous";
+    img.attr('src', url)
+      .on('load', function() {
+        background.append(img);
+
+        ctx.drawImage(this, 0, 0);
+      })
   });
 
   var prev = {};
@@ -103,7 +120,6 @@ $(function() {
   }, 10000);
 
   function drawLine(fromx, fromy, tox, toy) {
-    console.log(fromx);
     ctx.moveTo(fromx * size.x, fromy * size.y);
     ctx.lineTo(tox * size.x, toy * size.y);
     ctx.stroke();

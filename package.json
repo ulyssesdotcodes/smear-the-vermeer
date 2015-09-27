@@ -1,8 +1,11 @@
 {
   "name": "smear-the-vermeer",
   "dependencies": {
-    "socket.io": "*",
+    "express": "*",
     "node-static": "*",
-    "express": "*"
+    "socket.io": "*",
+    "superagent": "*",
+    "traverson": "*",
+    "traverson-hal": "^4.0.0"
   }
 }
