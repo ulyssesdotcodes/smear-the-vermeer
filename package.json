@@ -1,0 +1,8 @@
+{
+  "name": "smear-the-vermeer",
+  "dependencies": {
+    "socket.io": "*",
+    "node-static": "*",
+    "express": "*"
+  }
+}
