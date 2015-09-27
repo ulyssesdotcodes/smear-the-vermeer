@@ -16,6 +16,6 @@ var io = require('socket.io')(server);
 io.set('log level', 1);
 io.on('connection', function(socket) {
   socket.on('mousemove', function(data) {
-    socket.emit('moving', data);
+    socket.broadcast.emit('moving', data);
   })
 })

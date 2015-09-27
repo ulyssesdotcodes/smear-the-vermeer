@@ -11,8 +11,13 @@ $(function() {
 
   var ctx = canvas[0].getContext('2d');
 
-  ctx.canvas.width = window.innerWidth;
-  ctx.canvas.height = window.innerHeight;
+  var size = {
+    x: window.innerWidth,
+    y: window.innerHeight
+  };
+
+  ctx.canvas.width = size.x;
+  ctx.canvas.height = size.y;
 
   var clients = {};
   var cursors = {};
@@ -20,6 +25,7 @@ $(function() {
   var socket = io.connect(url);
 
   socket.on("moving", function(data) {
+    console.log(data);
 
 		if(! (data.id in clients)){
 			// a new user has come online. create a cursor for them
@@ -33,7 +39,8 @@ $(function() {
 		});
 
 		// Is the user drawing?
-		if(data.drawing && clients[data.id] && !data.id == id){
+    console.log(clients);
+		if(data.drawing && clients[data.id]){
 
 			// Draw a line on the canvas. clients[data.id] holds
 			// the previous position of this user's mouse pointer
@@ -51,8 +58,8 @@ $(function() {
   canvas.on('mousedown', function(e) {
     e.preventDefault();
     drawing = true;
-    prev.x = e.pageX;
-    prev.y = e.pageY;
+    prev.x = e.pageX / size.x;
+    prev.y = e.pageY / size.y;
   });
 
   doc.bind('mouseup mouseleave', function() {
@@ -64,8 +71,8 @@ $(function() {
   doc.on('mousemove', function(e) {
     if($.now() - lastEmit > 30){
       socket.emit('mousemove', {
-        'x': e.pageX,
-        'y': e.pageY,
+        'x': e.pageX / size.x,
+        'y': e.pageY / size.y,
         'drawing': drawing,
         'id': id
       });
@@ -74,10 +81,14 @@ $(function() {
     }
 
     if(drawing) {
-      drawLine(prev.x, prev.y, e.pageX, e.pageY);
 
-      prev.x = e.pageX;
-      prev.y = e.pageY;
+      var x= e.pageX / size.x;
+      var y = e.pageY / size.y;
+
+      drawLine(prev.x, prev.y, x, y);
+
+      prev.x = x;
+      prev.y = y;
     }
   });
 
@@ -92,11 +103,9 @@ $(function() {
   }, 10000);
 
   function drawLine(fromx, fromy, tox, toy) {
-    // ctx.beginPath();
-    ctx.moveTo(fromx, fromy);
-    ctx.lineTo(tox, toy);
+    console.log(fromx);
+    ctx.moveTo(fromx * size.x, fromy * size.y);
+    ctx.lineTo(tox * size.x, toy * size.y);
     ctx.stroke();
-    // ctx.closePath();
-    console.log(fromx + " test " + tox);
   }
 })
